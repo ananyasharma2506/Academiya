@@ -10,6 +10,7 @@ import questionRoutes from './routes/questions.js';
 import attemptRoutes from './routes/attempts.js';
 import gapRoutes from './routes/gaps.js';
 import generationJobsRoutes from './routes/generationJobs.js';
+import practiceRoutes from './routes/practice.js';
 import { registerSubscriber } from './services/jobBroadcaster.js';
 
 dotenv.config();
@@ -27,6 +28,7 @@ app.use('/api/questions', questionRoutes);
 app.use('/api/attempts', attemptRoutes);
 app.use('/api/gaps', gapRoutes);
 app.use('/api/generation-jobs', generationJobsRoutes);
+app.use('/api/practice', practiceRoutes);
 
 // Health check and DB verification route
 app.get('/api/health', async (req, res) => {
