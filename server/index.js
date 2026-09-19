@@ -13,6 +13,10 @@ import generationJobsRoutes from './routes/generationJobs.js';
 import practiceRoutes from './routes/practice.js';
 import diagnosticRoutes from './routes/diagnostics.js';
 import interventionRoutes from './routes/interventions.js';
+import reassessmentRoutes from './routes/reassessments.js';
+import codeLabRoutes from './routes/codeLab.js';
+import insightsRoutes from './routes/insights.js';
+import semanticRoutes from './routes/semantic.js';
 import { registerSubscriber } from './services/jobBroadcaster.js';
 
 dotenv.config();
@@ -33,6 +37,10 @@ app.use('/api/generation-jobs', generationJobsRoutes);
 app.use('/api/practice', practiceRoutes);
 app.use('/api/diagnostics', diagnosticRoutes);
 app.use('/api/interventions', interventionRoutes);
+app.use('/api/reassessments', reassessmentRoutes);
+app.use('/api/code-lab', codeLabRoutes);
+app.use('/api/insights', insightsRoutes);
+app.use('/api/semantic', semanticRoutes);
 
 // Health check and DB verification route
 app.get('/api/health', async (req, res) => {

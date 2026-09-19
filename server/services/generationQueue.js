@@ -11,6 +11,7 @@
 import { query } from '../db/index.js';
 import { generateQuestion } from '../ai/modelAdapter.js';
 import { broadcastJobEvent } from './jobBroadcaster.js';
+import { generateEmbedding, detectDuplicateQuestion } from './semanticService.js';
 
 const MAX_RETRIES_PER_ITEM = 3;
 
@@ -79,13 +80,22 @@ class GenerationQueue {
             constraints: { itemIndex, attemptNo },
           });
 
-          // Insert into questions table with source = 'ai'
+          // Duplicate detection using semanticSearch before persisting
+          const dupCheck = await detectDuplicateQuestion(questionData.statement, questionData.concept);
+          if (dupCheck.is_duplicate) {
+            throw new Error(`Near-duplicate detected (similarity: ${dupCheck.similarity})`);
+          }
+
+          const embeddingVector = generateEmbedding(`${questionData.statement} ${questionData.concept} ${questionData.subconcept}`);
+          const embeddingStr = `[${embeddingVector.join(',')}]`;
+
+          // Insert into questions table with source = 'ai' and embedding vector
           const insertQuestionRes = await query(
             `INSERT INTO questions (
               concept, subconcept, type, statement, options,
-              correct_option_ids, bloom_level, difficulty, source
+              correct_option_ids, bloom_level, difficulty, source, embedding
             )
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'ai')
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'ai', $9::vector)
             RETURNING *`,
             [
               questionData.concept,
@@ -96,6 +106,7 @@ class GenerationQueue {
               JSON.stringify(questionData.correct_option_ids),
               questionData.bloom_level,
               questionData.difficulty,
+              embeddingStr,
             ]
           );
           const persistedQuestion = insertQuestionRes.rows[0];

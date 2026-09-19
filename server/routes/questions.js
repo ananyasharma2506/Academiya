@@ -1,6 +1,7 @@
 import express from 'express';
 import { query } from '../db/index.js';
 import { requireAuth } from '../middleware/auth.js';
+import { generateEmbedding } from '../services/semanticService.js';
 
 const router = express.Router();
 
@@ -35,12 +36,15 @@ router.post('/seed', requireAuth, async (req, res) => {
       return res.status(400).json({ error: 'Invalid question type' });
     }
 
+    const embeddingVector = generateEmbedding(statement);
+    const embeddingStr = `[${embeddingVector.join(',')}]`;
+
     const result = await query(
       `INSERT INTO questions (
         assessment_id, concept, subconcept, type, statement,
-        options, correct_option_ids, bloom_level, difficulty, source
+        options, correct_option_ids, bloom_level, difficulty, source, embedding
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'teacher')
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'teacher', $10::vector)
       RETURNING *`,
       [
         assessment_id,
@@ -52,6 +56,7 @@ router.post('/seed', requireAuth, async (req, res) => {
         JSON.stringify(correct_option_ids),
         bloom_level || null,
         difficulty || null,
+        embeddingStr,
       ]
     );
 
