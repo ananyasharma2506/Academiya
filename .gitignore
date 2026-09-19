@@ -1,0 +1,20 @@
+# Dependencies
+node_modules/
+dist/
+build/
+
+# Environment
+.env
+.env.local
+
+# PostgreSQL Local Binary & Data (Self-hosted)
+pgsql/
+pgdata/
+*.zip
+*.log
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
