@@ -11,6 +11,8 @@ import attemptRoutes from './routes/attempts.js';
 import gapRoutes from './routes/gaps.js';
 import generationJobsRoutes from './routes/generationJobs.js';
 import practiceRoutes from './routes/practice.js';
+import diagnosticRoutes from './routes/diagnostics.js';
+import interventionRoutes from './routes/interventions.js';
 import { registerSubscriber } from './services/jobBroadcaster.js';
 
 dotenv.config();
@@ -29,6 +31,8 @@ app.use('/api/attempts', attemptRoutes);
 app.use('/api/gaps', gapRoutes);
 app.use('/api/generation-jobs', generationJobsRoutes);
 app.use('/api/practice', practiceRoutes);
+app.use('/api/diagnostics', diagnosticRoutes);
+app.use('/api/interventions', interventionRoutes);
 
 // Health check and DB verification route
 app.get('/api/health', async (req, res) => {
@@ -44,9 +48,7 @@ app.get('/api/health', async (req, res) => {
   }
 });
 
-// WebSocket connection handling:
-// On connect, client sends { subscribe: job_id }
-// Server registers subscriber and streams job progress events
+// WebSocket connection handling
 wss.on('connection', (ws) => {
   ws.on('message', (message) => {
     try {
