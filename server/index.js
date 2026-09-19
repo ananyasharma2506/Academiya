@@ -9,6 +9,8 @@ import authRoutes from './routes/auth.js';
 import questionRoutes from './routes/questions.js';
 import attemptRoutes from './routes/attempts.js';
 import gapRoutes from './routes/gaps.js';
+import generationJobsRoutes from './routes/generationJobs.js';
+import { registerSubscriber } from './services/jobBroadcaster.js';
 
 dotenv.config();
 
@@ -24,6 +26,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/questions', questionRoutes);
 app.use('/api/attempts', attemptRoutes);
 app.use('/api/gaps', gapRoutes);
+app.use('/api/generation-jobs', generationJobsRoutes);
 
 // Health check and DB verification route
 app.get('/api/health', async (req, res) => {
@@ -39,13 +42,20 @@ app.get('/api/health', async (req, res) => {
   }
 });
 
-// WebSocket connection handling for streaming events
+// WebSocket connection handling:
+// On connect, client sends { subscribe: job_id }
+// Server registers subscriber and streams job progress events
 wss.on('connection', (ws) => {
   ws.on('message', (message) => {
     try {
       const data = JSON.parse(message.toString());
       if (data.subscribe) {
-        ws.jobId = data.subscribe;
+        registerSubscriber(data.subscribe, ws);
+        ws.send(JSON.stringify({
+          event: 'subscribed',
+          jobId: data.subscribe,
+          timestamp: new Date().toISOString(),
+        }));
       }
     } catch {
       // Ignore invalid frames
