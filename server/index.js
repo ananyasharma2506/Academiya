@@ -5,6 +5,10 @@ import http from 'http';
 import { WebSocketServer } from 'ws';
 import { pool } from './db/index.js';
 
+import authRoutes from './routes/auth.js';
+import questionRoutes from './routes/questions.js';
+import attemptRoutes from './routes/attempts.js';
+
 dotenv.config();
 
 const app = express();
@@ -13,6 +17,11 @@ const wss = new WebSocketServer({ server });
 
 app.use(cors());
 app.use(express.json());
+
+// API Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/questions', questionRoutes);
+app.use('/api/attempts', attemptRoutes);
 
 // Health check and DB verification route
 app.get('/api/health', async (req, res) => {
@@ -46,3 +55,5 @@ const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
   console.log(`Learning Intelligence Platform server running on port ${PORT}`);
 });
+
+export { app, server, wss };
