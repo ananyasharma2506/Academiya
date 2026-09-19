@@ -2,13 +2,15 @@ import express from 'express';
 import { query } from '../db/index.js';
 import { requireAuth } from '../middleware/auth.js';
 import { evaluateMCQ } from '../lib/evaluator.js';
+import { detectGap } from '../services/gapService.js';
 
 const router = express.Router();
 
 // POST /api/attempts
 // Student submits an answer to a question_id -> call evaluator.js ->
 // insert into attempts -> then insert one row into learning_evidence
-// (result = 'correct' or 'incorrect', copying concept/subconcept from question).
+// (result = 'correct' or 'incorrect', copying concept/subconcept from question)
+// -> then trigger detectGap(student_id, concept)
 router.post('/', requireAuth, async (req, res) => {
   try {
     const studentId = req.user.id;
@@ -40,7 +42,6 @@ router.post('/', requireAuth, async (req, res) => {
         ? question.correct_option_ids
         : JSON.parse(question.correct_option_ids || '[]');
 
-      // Format correctOptions for evaluator.js
       const evaluatorCorrectOptions = options.map((opt) => ({
         id: opt.id,
         is_correct: correctOptionIds.includes(opt.id),
@@ -50,7 +51,7 @@ router.post('/', requireAuth, async (req, res) => {
         question.type,
         selected_option_ids,
         evaluatorCorrectOptions,
-        1.0 // standard unit mark
+        1.0
       );
     }
 
@@ -88,10 +89,14 @@ router.post('/', requireAuth, async (req, res) => {
     );
     const evidence = evidenceRes.rows[0];
 
+    // 5. Trigger gap detection hook
+    const detectedGap = await detectGap(studentId, question.concept);
+
     res.status(201).json({
       attempt,
       evidence,
       evaluation,
+      gap_detected: detectedGap || null,
     });
   } catch (err) {
     console.error('Attempt submission error:', err);

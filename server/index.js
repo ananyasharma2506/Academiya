@@ -8,6 +8,7 @@ import { pool } from './db/index.js';
 import authRoutes from './routes/auth.js';
 import questionRoutes from './routes/questions.js';
 import attemptRoutes from './routes/attempts.js';
+import gapRoutes from './routes/gaps.js';
 
 dotenv.config();
 
@@ -22,6 +23,7 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/questions', questionRoutes);
 app.use('/api/attempts', attemptRoutes);
+app.use('/api/gaps', gapRoutes);
 
 // Health check and DB verification route
 app.get('/api/health', async (req, res) => {
