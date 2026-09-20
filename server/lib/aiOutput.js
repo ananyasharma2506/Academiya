@@ -1,10 +1,10 @@
 /**
- * Robust JSON extraction utility from messy LLM text output.
- * Ported from legacy/server/routes/ai.js as specified in reuse map.
+ * Robust JSON extractor from LLM text output
+ * Ported from legacy/server/routes/ai.js
  */
 export function extractJSON(text) {
-  if (!text || typeof text !== 'string') {
-    throw new Error('Input must be a non-empty string');
+  if (!text) {
+    throw new Error('Empty AI output received');
   }
 
   // Strip markdown code fences
@@ -45,15 +45,14 @@ export function extractJSON(text) {
     return `"${fixed}"`;
   });
 
+  // Strip single-line comments // that LLMs sometimes insert
+  jsonStr = jsonStr.replace(/(^|[^:\\])\/\/.*$/gm, '$1');
+
   const parsed = JSON.parse(jsonStr);
 
-  if (!isArray && parsed && typeof parsed === 'object') {
-    if (parsed.question) return parsed.question;
-    if (parsed.variants) return parsed.variants;
-    if (parsed.diagnostic) return parsed.diagnostic;
-    if (parsed.plan) return parsed.plan;
-    if (parsed.explanation) return parsed.explanation;
-  }
-
+  // Unwrap if wrapped in an object container (do not unwrap if it is a full coding challenge object)
+  if (!isArray && parsed.questions) return parsed.questions;
+  if (!isArray && parsed.variants) return parsed.variants;
+  if (!isArray && !parsed.title && !parsed.initial_code && parsed.test_cases) return parsed.test_cases;
   return parsed;
 }

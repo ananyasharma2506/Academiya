@@ -1,5 +1,5 @@
 import { spawn } from 'child_process';
-import { writeFile, mkdir } from 'node:fs/promises';
+import { writeFile, unlink, mkdir, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { randomUUID } from 'node:crypto';
@@ -41,36 +41,38 @@ async function runProcess(cmd, args, stdin, cwd) {
 }
 
 export async function runLocally(language, code, stdin) {
-  const id  = randomUUID();
-  const dir = join(tmpdir(), `testforge_${id}`);
+  const id = randomUUID();
+  const dir = join(tmpdir(), `akademiya_run_${id}`);
   await mkdir(dir, { recursive: true });
 
   try {
-    if (language === 'python') {
+    if (language === 'python' || language === 'py') {
       const file = join(dir, 'main.py');
       await writeFile(file, code);
-      // Try python3 first (Linux/Mac), then python (Windows/some envs)
       let result = await runProcess('python3', [file], stdin, dir);
-      if (result.exitCode !== 0 && (result.stderr.includes('ENOENT') || result.stderr.includes('No such file') || result.stderr.includes('cannot find'))) {
+      if (result.exitCode !== 0 && (result.stderr.includes('ENOENT') || result.stderr.includes('No such file'))) {
         result = await runProcess('python', [file], stdin, dir);
       }
       return result;
     }
 
+    if (language === 'javascript' || language === 'js') {
+      const file = join(dir, 'main.js');
+      await writeFile(file, code);
+      return await runProcess('node', [file], stdin, dir);
+    }
+
     if (language === 'cpp' || language === 'c') {
-      const ext    = language === 'cpp' ? 'cpp' : 'c';
-      const src    = join(dir, `main.${ext}`);
-      const out    = join(dir, 'main.exe');
+      const ext = language === 'cpp' ? 'cpp' : 'c';
+      const src = join(dir, `main.${ext}`);
+      const out = join(dir, 'main.exe');
       const compiler = language === 'cpp' ? 'g++' : 'gcc';
       await writeFile(src, code);
 
-      // Compile
       const compile = await runProcess(compiler, [src, '-o', out, '-std=c++17'], '', dir);
       if (compile.exitCode !== 0) {
         return { stdout: '', stderr: compile.stderr, exitCode: 1 };
       }
-
-      // Run
       return await runProcess(out, [], stdin, dir);
     }
 
@@ -86,9 +88,7 @@ export async function runLocally(language, code, stdin) {
 
     return { stdout: '', stderr: `Unsupported language: ${language}`, exitCode: 1 };
   } finally {
-    // Cleanup temp files
     try {
-      const { rm } = await import('node:fs/promises');
       await rm(dir, { recursive: true, force: true });
     } catch {}
   }

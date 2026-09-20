@@ -1,0 +1,858 @@
+@charset "UTF-8";
+
+:root {
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Accent - Rich Violet / Indigo */
+  --accent: 124, 58, 237;
+  --accent-light: 167, 139, 250;
+  --accent-gradient: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+  
+  /* Status Colors */
+  --success: 16, 185, 129;
+  --warning: 245, 158, 11;
+  --danger: 239, 68, 68;
+  --info: 59, 130, 246;
+
+  /* Liquid Glass Dark Theme (Default) - Distinct High-Clarity Layer System */
+  --bg-desktop: radial-gradient(circle at 15% 15%, rgba(124, 58, 237, 0.28) 0%, transparent 45%),
+                radial-gradient(circle at 85% 85%, rgba(236, 72, 153, 0.22) 0%, transparent 45%),
+                linear-gradient(140deg, #07090e 0%, #0d101b 50%, #090b14 100%);
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --panel-bg: rgba(22, 27, 46, 0.72);
+  --panel-border: rgba(255, 255, 255, 0.09);
+  --window-bg: rgba(13, 16, 28, 0.84);
+  --window-header: rgba(18, 22, 38, 0.90);
+  --dock-bg: rgba(15, 18, 30, 0.78);
+  --menubar-bg: rgba(10, 12, 20, 0.75);
+  --menubar-border: rgba(255, 255, 255, 0.09);
+  --card-bg: rgba(255, 255, 255, 0.038);
+  --card-border: rgba(255, 255, 255, 0.07);
+  --card-hover-bg: rgba(255, 255, 255, 0.065);
+  --card-hover-border: rgba(167, 139, 250, 0.35);
+  --input-bg: rgba(0, 0, 0, 0.35);
+
+  /* Transitions.dev — Card resize tokens */
+  --resize-dur: 300ms;
+  --resize-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* Transitions.dev — Panel reveal tokens */
+  --panel-open-dur: 400ms;
+  --panel-close-dur: 350ms;
+  --panel-translate-y: calc(187px * 0.5);
+  --panel-blur: 2px;
+  --panel-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* Transitions.dev — Modal open / close tokens */
+  --modal-open-dur: 250ms;
+  --modal-close-dur: 150ms;
+  --modal-scale: 0.96;
+  --modal-scale-close: 0.96;
+  --modal-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+[data-theme="light"] {
+  --bg-desktop: radial-gradient(circle at 15% 15%, rgba(167, 139, 250, 0.35) 0%, transparent 45%),
+                radial-gradient(circle at 85% 85%, rgba(244, 114, 182, 0.25) 0%, transparent 45%),
+                linear-gradient(140deg, #f1f5f9 0%, #e2e8f0 50%, #cbd5e1 100%);
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+  --panel-bg: rgba(255, 255, 255, 0.88);
+  --panel-border: rgba(0, 0, 0, 0.08);
+  --window-bg: rgba(255, 255, 255, 0.92);
+  --window-header: rgba(248, 250, 252, 0.96);
+  --dock-bg: rgba(255, 255, 255, 0.80);
+  --menubar-bg: rgba(255, 255, 255, 0.88);
+  --menubar-border: rgba(0, 0, 0, 0.08);
+  --card-bg: rgba(0, 0, 0, 0.025);
+  --card-border: rgba(0, 0, 0, 0.06);
+  --card-hover-bg: rgba(0, 0, 0, 0.045);
+  --card-hover-border: rgba(124, 58, 237, 0.3);
+  --input-bg: rgba(255, 255, 255, 0.85);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body, #root {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: var(--font-sans);
+  color: var(--text-primary);
+  user-select: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.16);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* ── Layer 1: Window Chrome & Frame ── */
+.window-container {
+  background: var(--window-bg);
+  backdrop-filter: blur(40px) saturate(190%);
+  -webkit-backdrop-filter: blur(40px) saturate(190%);
+  border: 1px solid var(--panel-border);
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.7), inset 0 1px 0 0 rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.window-titlebar {
+  height: 38px;
+  min-height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 0 0 16px;
+  background: var(--window-header);
+  border-bottom: 1px solid var(--panel-border);
+  user-select: none;
+  cursor: grab;
+  flex-shrink: 0;
+}
+
+.window-titlebar:active {
+  cursor: grabbing;
+}
+
+.window-title {
+  flex: 1;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0 8px 0 0;
+}
+
+.window-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0%;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 18px 20px;
+  user-select: text;
+  box-sizing: border-box;
+  overscroll-behavior: contain;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.25) rgba(0, 0, 0, 0.1);
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.12);
+  border-radius: 9999px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 9999px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(56, 189, 248, 0.6);
+}
+
+/* ── Global Font Scaling & Fullscreen Canvas ── */
+html {
+  font-size: 16px;
+  transition: font-size 0.2s ease;
+  background: var(--bg-desktop);
+  background-attachment: fixed;
+  background-size: cover;
+  background-position: center;
+}
+
+html[data-font-scale="small"] {
+  font-size: 14px;
+  zoom: 0.9;
+}
+
+html[data-font-scale="small"] body,
+html[data-font-scale="small"] #root,
+html[data-font-scale="small"] .desktop-container {
+  width: calc(100vw / 0.9) !important;
+  height: calc(100vh / 0.9) !important;
+  min-width: calc(100vw / 0.9) !important;
+  min-height: calc(100vh / 0.9) !important;
+}
+
+html[data-font-scale="medium"] {
+  font-size: 16px;
+  zoom: 1;
+}
+
+html[data-font-scale="large"] {
+  font-size: 18px;
+  zoom: 1.12;
+}
+
+html[data-font-scale="large"] body,
+html[data-font-scale="large"] #root,
+html[data-font-scale="large"] .desktop-container {
+  width: calc(100vw / 1.12) !important;
+  height: calc(100vh / 1.12) !important;
+  min-width: calc(100vw / 1.12) !important;
+  min-height: calc(100vh / 1.12) !important;
+}
+
+/* ── Windows Window Controls ([-] [o] [x] at top right) ── */
+.window-controls-container {
+  display: flex;
+  align-items: stretch;
+  height: 100%;
+  margin-left: auto;
+}
+
+.window-control-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 100%;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+  outline: none;
+  transition: background-color 0.12s ease, color 0.12s ease;
+}
+
+.window-control-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
+}
+
+.window-control-btn:active {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.window-control-close:hover {
+  background: #e81123 !important;
+  color: #ffffff !important;
+}
+
+.window-control-close:active {
+  background: #c4101d !important;
+  color: #ffffff !important;
+}
+
+/* ── Legacy Traffic Lights (fallback) ── */
+.traffic-lights-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.traffic-light {
+  width: 22px;
+  height: 22px;
+  min-width: 22px;
+  min-height: 22px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  transition: transform 0.15s ease, filter 0.15s ease, box-shadow 0.15s ease;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin: 0;
+  outline: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.traffic-light:hover {
+  filter: brightness(1.15);
+  transform: scale(1.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.traffic-light-red {
+  background: #ff5f57;
+  box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.25);
+}
+
+.traffic-light-yellow {
+  background: #febc2e;
+  box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.25);
+}
+
+.traffic-light-green {
+  background: #28c840;
+  box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.25);
+}
+
+.traffic-light-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s ease;
+}
+
+
+
+/* ── Layer 2: Surface Panels ── */
+.glass-panel {
+  background: var(--panel-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--panel-border);
+  border-radius: 16px;
+  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.25), inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+}
+
+.liquid-dock {
+  background: var(--dock-bg);
+  backdrop-filter: blur(28px) saturate(180%);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  border: 1px solid var(--panel-border);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45), 0 0 20px rgba(var(--accent), 0.2);
+}
+
+/* ── Layer 3: Nested Cards & Items ── */
+.glass-card,
+.card-item {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  padding: 14px 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15), inset 0 1px 0 0 rgba(255, 255, 255, 0.04);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-card:hover,
+.card-item:hover {
+  background: var(--card-hover-bg);
+  border-color: var(--card-hover-border);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25), 0 0 12px rgba(var(--accent), 0.12);
+}
+
+/* ── Layer 4: Badges & Controls ── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  line-height: 1;
+}
+
+.badge-emerging {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.38);
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.15);
+}
+
+.badge-confirmed {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.38);
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.15);
+}
+
+.badge-resolved {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.38);
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.15);
+}
+
+.badge-active {
+  background: rgba(124, 58, 237, 0.18);
+  color: #c4b5fd;
+  border: 1px solid rgba(167, 139, 250, 0.4);
+  box-shadow: 0 0 10px rgba(124, 58, 237, 0.2);
+}
+
+.badge-completed {
+  background: rgba(16, 185, 129, 0.16);
+  color: #6ee7b7;
+  border: 1px solid rgba(52, 211, 153, 0.35);
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.15);
+}
+
+/* Button utility */
+.btn-primary {
+  background: var(--accent-gradient);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px rgba(var(--accent), 0.35);
+}
+
+.btn-primary:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(var(--accent), 0.45);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
+  border: 1px solid var(--panel-border);
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 13px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* ── Standard Utility Classes ── */
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.flex-1 { flex: 1 1 0%; min-height: 0; }
+.items-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.justify-center { justify-content: center; }
+.justify-end { justify-content: flex-end; }
+.gap-1 { gap: 4px; }
+.gap-2 { gap: 8px; }
+.gap-3 { gap: 12px; }
+.gap-4 { gap: 16px; }
+.gap-6 { gap: 24px; }
+.p-2 { padding: 8px; }
+.p-3 { padding: 12px; }
+.p-4 { padding: 16px; }
+.p-6 { padding: 24px; }
+.p-8 { padding: 32px; }
+.px-1 { padding-left: 4px; padding-right: 4px; }
+.px-3 { padding-left: 12px; padding-right: 12px; }
+.px-4 { padding-left: 16px; padding-right: 16px; }
+.py-2 { padding-top: 8px; padding-bottom: 8px; }
+.text-xs { font-size: 12px; }
+.text-sm { font-size: 14px; }
+.font-semibold { font-weight: 600; }
+.font-medium { font-weight: 500; }
+.font-bold { font-weight: 700; }
+.truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.select-none { user-select: none; }
+.overflow-hidden { overflow: hidden; }
+.overflow-auto { overflow: auto; }
+.shrink-0 { flex-shrink: 0; }
+
+/* ==========================================================================
+   Transitions.dev — Card resize
+   Put `.t-resize` on any card or element and change its width/height
+   (directly, or via state classes like .is-small / .is-expanded).
+   The transition smoothly tweens the two sizes.
+   ========================================================================== */
+.t-resize {
+  transition:
+    width  var(--resize-dur) var(--resize-ease),
+    height var(--resize-dur) var(--resize-ease);
+  will-change: width, height;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .t-resize {
+    transition: none !important;
+  }
+}
+
+/* ==========================================================================
+   Transitions.dev — Panel reveal
+   The panel slides on the Y axis, fades opacity 0 ↔ 1, and cross-blurs
+   --panel-blur ↔ 0, all on the same duration / ease so a shorter travel
+   (e.g. 50% of the panel height) still reads as a full open / close.
+   Wrap it in your own container with `overflow: hidden` if you want the
+   closed state fully clipped. Set --panel-translate-y to the travel
+   distance (e.g. half the panel's own height).
+   ========================================================================== */
+.t-panel-slide {
+  transform: translateY(var(--panel-translate-y));
+  opacity: 0;
+  filter: blur(var(--panel-blur));
+  pointer-events: none;
+  transition:
+    transform var(--panel-close-dur) var(--panel-ease),
+    opacity   var(--panel-close-dur) var(--panel-ease),
+    filter    var(--panel-close-dur) var(--panel-ease);
+  will-change: transform, opacity, filter;
+}
+
+.t-panel-slide[data-open="true"],
+.t-panel-slide.open,
+.t-panel-slide.is-open {
+  transform: translateY(0);
+  opacity: 1;
+  filter: blur(0);
+  pointer-events: auto;
+  transition:
+    transform var(--panel-open-dur) var(--panel-ease),
+    opacity   var(--panel-open-dur) var(--panel-ease),
+    filter    var(--panel-open-dur) var(--panel-ease);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .t-panel-slide {
+    transition: none !important;
+  }
+}
+
+/* ==========================================================================
+   Transitions.dev — Modal open / close
+   Usage:
+     <div class="t-modal" role="dialog">…</div>
+
+   State:
+     - Add `.is-open` (or data-open="true") to open (scales up from --modal-scale).
+     - On close, swap `.is-open` for `.is-closing` (or data-open="false"), then remove
+       `.is-closing` after --modal-close-dur.
+   ========================================================================== */
+.t-modal {
+  transform-origin: center;
+  transform: scale(var(--modal-scale));
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    transform var(--modal-open-dur) var(--modal-ease),
+    opacity   var(--modal-open-dur) var(--modal-ease);
+  will-change: transform, opacity;
+}
+
+.t-modal.is-open,
+.t-modal[data-open="true"] {
+  transform: scale(1);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.t-modal.is-closing,
+.t-modal[data-open="false"] {
+  transform: scale(var(--modal-scale-close));
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    transform var(--modal-close-dur) var(--modal-ease),
+    opacity   var(--modal-close-dur) var(--modal-ease);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .t-modal {
+    transition: none !important;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Keyline & My Learning Theme Adaptive Icon Styles
+   Dark mode: negative (inverted / luminous white)
+   Light mode: as it is (positive / dark crisp outline)
+   ───────────────────────────────────────────────────────────── */
+.keyline-theme-icon {
+  display: inline-block;
+  vertical-align: middle;
+  transition: filter 0.2s ease, color 0.2s ease, stroke 0.2s ease;
+}
+
+[data-theme="dark"] .keyline-theme-icon {
+  filter: invert(1);
+  color: #000000;
+  stroke: #000000;
+}
+
+[data-theme="light"] .keyline-theme-icon {
+  filter: none;
+  color: #0f172a;
+  stroke: currentColor;
+}
+
+.my-learning-menu-btn {
+  background: var(--card-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 6px;
+  padding: 3px 10px;
+  color: var(--text-primary);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+}
+
+.my-learning-menu-btn:hover {
+  background: var(--card-hover-bg);
+  border-color: var(--card-hover-border);
+}
+
+/* Session loading spinner */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* ==========================================================================
+   Motion System — keyframes + utility classes used across every app.
+   Several of these classNames (animate-spin, animate-pulse, pulse-dot) were
+   already referenced by components but never defined, so those animations
+   were silently inert; defining them here brings every existing call site
+   to life with no component changes required.
+   ========================================================================== */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.94); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* Opacity-only: react-rnd/react-draggable position this exact element via an
+   inline `transform: translate(x, y)` on every drag frame. An `animation`
+   with `fill-mode: both` that also touches `transform` would "hold" its own
+   last-keyframe transform as a standing override on the property even after
+   finishing, indefinitely fighting every subsequent inline transform update
+   from dragging — which is exactly what made windows stop being draggable.
+   Scale/translate entrance flourish lives on the inner `.window-pop-inner`
+   wrapper instead, which react-rnd never touches. */
+@keyframes windowPopIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes windowContentPopIn {
+  from { opacity: 0; transform: scale(0.96) translateY(8px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.window-pop-inner {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0%;
+  min-height: 0;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  animation: windowContentPopIn 280ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes pulseRing {
+  0%   { opacity: 0.55; transform: scale(1); }
+  70%  { opacity: 0; transform: scale(2.2); }
+  100% { opacity: 0; transform: scale(2.2); }
+}
+
+@keyframes pulseDot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.45; transform: scale(0.85); }
+}
+
+@keyframes pulseSoft {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.55; }
+}
+
+@keyframes floatOrb {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%      { transform: translate(2%, -3%) scale(1.05); }
+  66%      { transform: translate(-2%, 2%) scale(0.97); }
+}
+
+@keyframes shimmer {
+  from { background-position: -200% 0; }
+  to   { background-position: 200% 0; }
+}
+
+.animate-spin {
+  animation: spin 0.9s linear infinite;
+  display: inline-flex;
+}
+
+.animate-pulse {
+  animation: pulseSoft 1.6s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.pulse-dot {
+  position: relative;
+  display: inline-flex;
+  animation: pulseDot 1.8s ease-in-out infinite;
+  color: #34d399;
+}
+
+.pulse-dot::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 1.5px solid currentColor;
+  animation: pulseRing 1.8s cubic-bezier(0.2, 0.7, 0.4, 1) infinite;
+  pointer-events: none;
+}
+
+.fade-in {
+  animation: fadeIn 0.35s ease both;
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.scale-in {
+  animation: scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Apply to a list wrapper; children get staggered via nth-child so no inline
+   per-item delay math is needed. Falls back gracefully past the 12th item
+   (they all share the last stagger step rather than growing unbounded). */
+.stagger-fade-in > * {
+  animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.stagger-fade-in > *:nth-child(1)  { animation-delay: 0ms; }
+.stagger-fade-in > *:nth-child(2)  { animation-delay: 35ms; }
+.stagger-fade-in > *:nth-child(3)  { animation-delay: 70ms; }
+.stagger-fade-in > *:nth-child(4)  { animation-delay: 105ms; }
+.stagger-fade-in > *:nth-child(5)  { animation-delay: 140ms; }
+.stagger-fade-in > *:nth-child(6)  { animation-delay: 175ms; }
+.stagger-fade-in > *:nth-child(7)  { animation-delay: 210ms; }
+.stagger-fade-in > *:nth-child(8)  { animation-delay: 245ms; }
+.stagger-fade-in > *:nth-child(n+9) { animation-delay: 280ms; }
+
+.shimmer-loading {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.04) 25%,
+    rgba(255, 255, 255, 0.10) 50%,
+    rgba(255, 255, 255, 0.04) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+.ambient-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  pointer-events: none;
+  animation: floatOrb 14s ease-in-out infinite;
+  will-change: transform;
+}
+
+/* Window chrome pops in smoothly on open instead of appearing instantly. */
+.window-container {
+  animation: windowPopIn 260ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.window-container.window-closing {
+  animation: windowPopIn 200ms cubic-bezier(0.4, 0, 1, 1) reverse both;
+}
+
+.window-container.window-minimizing {
+  animation: windowMinimize 220ms cubic-bezier(0.4, 0, 1, 1) both;
+}
+
+@keyframes windowMinimize {
+  from { opacity: 1; transform: scale(1) translateY(0); }
+  to   { opacity: 0; transform: scale(0.35) translateY(45vh); }
+}
+
+.window-container.window-resizing-animated {
+  transition:
+    width 260ms cubic-bezier(0.22, 1, 0.36, 1),
+    height 260ms cubic-bezier(0.22, 1, 0.36, 1),
+    left 260ms cubic-bezier(0.22, 1, 0.36, 1),
+    top 260ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 260ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Press feedback on the two global button primitives. */
+.btn-primary:active,
+.btn-secondary:active {
+  transform: scale(0.97);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-spin,
+  .animate-pulse,
+  .pulse-dot,
+  .pulse-dot::after,
+  .fade-in,
+  .fade-in-up,
+  .scale-in,
+  .stagger-fade-in > *,
+  .shimmer-loading,
+  .ambient-orb,
+  .window-container,
+  .window-container.window-closing,
+  .window-container.window-minimizing,
+  .window-pop-inner {
+    animation: none !important;
+  }
+  .window-container.window-resizing-animated {
+    transition: none !important;
+  }
+}

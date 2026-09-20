@@ -1,20 +1,12 @@
-# Dependencies
-node_modules/
-dist/
-build/
-
-# Environment
+legacy/
+.gitignore
 .env
-.env.local
-
-# PostgreSQL Local Binary & Data (Self-hosted)
-pgsql/
-pgdata/
-*.zip
-*.log
-
-# OS / IDE
-.DS_Store
-Thumbs.db
-.vscode/
-.idea/
+data/
+node_modules/
+.agents/
+skills-lock.json
+.vite/
+dist/
+app/.vite/
+app/dist/
+graphify-out/

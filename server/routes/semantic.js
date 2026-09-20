@@ -1,62 +1,37 @@
 import express from 'express';
 import { requireAuth } from '../middleware/auth.js';
-import {
-  generateEmbedding,
-  semanticSearch,
-  detectDuplicateQuestion,
-  getSimilarQuestions,
-} from '../services/semanticService.js';
+import { findSimilarQuestions, checkDuplicateQuestion } from '../services/semanticService.js';
 
 const router = express.Router();
 
-// POST /api/semantic/search
-router.post('/search', requireAuth, async (req, res) => {
+router.post('/similar', requireAuth, async (req, res) => {
   try {
-    const { query: queryText, concept, limit = 5 } = req.body;
-    if (!queryText) {
-      return res.status(400).json({ error: 'query text is required' });
+    const { text, concept } = req.body;
+    if (!text) {
+      return res.status(400).json({ error: 'text is required' });
     }
-
-    const embedding = generateEmbedding(queryText);
-    const results = await semanticSearch(embedding, { concept, limit });
-
-    res.json({ results });
+    const results = await findSimilarQuestions(text, concept);
+    return res.json({ matches: results });
   } catch (err) {
-    console.error('Semantic search error:', err);
-    res.status(500).json({ error: 'Failed to perform semantic search' });
+    console.error('Similar search error:', err);
+    return res.status(500).json({ error: 'Internal server error' });
   }
 });
 
-// POST /api/semantic/check-duplicate
-// Flags near-duplicates rather than silently persisting them
 router.post('/check-duplicate', requireAuth, async (req, res) => {
   try {
     const { statement, concept } = req.body;
-    if (!statement || !concept) {
-      return res.status(400).json({ error: 'statement and concept are required' });
+    if (!statement) {
+      return res.status(400).json({ error: 'statement is required' });
     }
-
-    const dupResult = await detectDuplicateQuestion(statement, concept);
-    res.json(dupResult);
+    const duplicate = await checkDuplicateQuestion(statement, concept);
+    return res.json({
+      is_duplicate: Boolean(duplicate),
+      duplicate
+    });
   } catch (err) {
     console.error('Duplicate check error:', err);
-    res.status(500).json({ error: 'Failed to check duplicate' });
-  }
-});
-
-// GET /api/semantic/similar
-router.get('/similar', requireAuth, async (req, res) => {
-  try {
-    const { concept, reference, limit } = req.query;
-    if (!concept || !reference) {
-      return res.status(400).json({ error: 'concept and reference query params are required' });
-    }
-
-    const results = await getSimilarQuestions(concept, reference, parseInt(limit || '3', 10));
-    res.json({ similar_questions: results });
-  } catch (err) {
-    console.error('Similar questions error:', err);
-    res.status(500).json({ error: 'Failed to fetch similar questions' });
+    return res.status(500).json({ error: 'Internal server error' });
   }
 });
 
